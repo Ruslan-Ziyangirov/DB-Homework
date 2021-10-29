@@ -1,0 +1,54 @@
+--№1
+Вывести список сотрудников, получающих максимальную заработную плату в своем отделе
+
+select   e1.name,
+    e1.salary as employee_salary,
+    e2.salary as chief_salary,
+    d.name
+from employee as e1
+left join employee as e2 on e1.chief_id = e2.id
+join department d on d.id = e1.department_id
+where e1.salary > e2.salary
+limit 10;
+
+--№2
+Вывести список сотрудников, получающих максимальную заработную плату в своем отделе
+
+select
+       e1.name,
+       e1.salary,
+       d.name
+from employee  as e1
+LEFT JOIN  department as d on  e1.department_id = d.id
+where e1.salary = (SELECT max(salary) FROM employee as e2 WHERE e2.department_id = e1.department_id)
+limit 10;
+
+--№3
+-- Вывести список ID отделов, количество сотрудников в которых не превышает 3 человек
+
+select  d.id,
+        d.name
+from department as d
+where (select count(e1) from employee as e1 where e1.department_id = d.id) <=3
+limit 10;
+
+--№4
+--Вывести список сотрудников, не имеющих назначенного руководителя, работающего в том-же отделе
+
+select e1.id,
+       e1.name
+from employee as e1
+left join employee as e2 on  (e2.id = e1.chief_id and e1.department_id = e2.department_id)
+where e2.id IS NULL
+limit 10;
+
+--№5
+--Найти список ID отделов с максимальной суммарной зарплатой сотрудников
+
+with sum_salary as (
+    select e1.department_id, sum(salary) as money
+    from employee e1
+    group by department_id)
+select s1.department_id from sum_salary s1
+join sum_salary s2 on s1.money =(select max(money) from sum_salary)
+limit 10;
